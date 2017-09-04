@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
+    xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+    xmlns:aop="http://www.springframework.org/schema/aop" xmlns:p="http://www.springframework.org/schema/p"
+    xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+    http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+	<!-- 引入配置文件  -->
+	<context:property-placeholder location="classpath:config.properties" />
+	
+    <!-- 配置数据源 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource"
+          init-method="init" destroy-method="clone">
+        <!-- 基本属性driverClassName、 url、user、password -->
+        <property name="driverClassName" value="${jdbc.driver}" />
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+
+        <!-- 配置初始化大小、最小、最大 -->
+        <!-- 通常来说，只需要修改initialSize、minIdle、maxActive -->
+        <!-- 初始化时建立物理连接的个数，缺省值为0 -->
+        <property name="initialSize" value="${jdbc.initialSize}" />
+        <!-- 最小连接池数量 -->
+        <property name="minIdle" value="${jdbc.minIdle}" />
+        <!-- 最大连接池数量，缺省值为8 -->
+        <property name="maxActive" value="${jdbc.maxActive}" />
+
+        <!-- 获取连接时最大等待时间，单位毫秒。配置了maxWait之后，缺省启用公平锁，并发效率会有所下降，如果需要可以通过配置useUnfairLock属性为true使用非公平锁。 -->
+        <property name="maxWait" value="${jdbc.maxWait}" />
+    </bean>
+
+	<!-- 配置事务管理器 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- 注解方式配置事物 -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	
+	<!-- 注解解析 -->
+	<context:annotation-config />
+	
+	<!-- 扫描所有spring bean注解 -->
+    <!--<context:component-scan base-package="bhz" />-->
+    <context:component-scan base-package="bhz">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+	<!-- 动态代理 -->
+	<aop:aspectj-autoproxy/>
+
+    <!-- 配置dubbo服务 -->
+    <import resource="classpath:dubbo-consumer.xml" />
+	
+</beans>
