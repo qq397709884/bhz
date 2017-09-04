@@ -29,3 +29,7 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 .mvn/timing.properties
+
+*.js linguist-language=java
+*.css linguist-language=java
+*.html linguist-language=java
